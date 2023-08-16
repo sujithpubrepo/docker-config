@@ -8,10 +8,10 @@ services:
       CONFIGSERVER_PORT: "8071"
     healthcheck:
       test: "curl --fail --silent http://config-server:8071/actuator/health | grep actuator || exit 1"
-      interval: 2s
-      timeout: 5s
-      retries: 5
-      start_period: 2s
+      interval: 10s
+      timeout: 12s
+      retries: 3
+      start_period: 10s
     networks:
       default:
         aliases:
@@ -29,10 +29,10 @@ services:
       EUREKASERVER_PORT: "8070"
     healthcheck:
       test: "curl --fail --silent http://eureka-server:8070/actuator/health | grep UP || exit 1"
-      interval: 2s
-      timeout: 5s
-      retries: 5
-      start_period: 2s
+      interval: 10s
+      timeout: 12s
+      retries: 3
+      start_period: 10s
     depends_on:
       config-server: 
         condition: service_healthy
@@ -52,10 +52,10 @@ services:
       GATEWAYSERVER_PORT: "8072"
     healthcheck:
       test: "curl --fail --silent http://gateway-server:8072/actuator/health | grep UP || exit 1"
-      interval: 2s
-      timeout: 5s
-      retries: 5
-      start_period: 2s
+      interval: 10s
+      timeout: 12s
+      retries: 3
+      start_period: 10s
     
     depends_on:
       config-server: 
