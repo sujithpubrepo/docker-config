@@ -1,0 +1,16 @@
+version: '3.9'
+
+volumes:
+  pgdata:
+  
+services:
+  pg-server:
+    image: dockerinaction/postgres:11-alpine
+    environment:
+      POSTGRES_DB: cbt
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - type: volume
+        source: pgdata
+        target: /var/lib/postgresql/data
