@@ -1,0 +1,68 @@
+version: '3.9'
+services:
+  config-server:
+    image: sujithkumarmp/config-server.jar:latest
+    ports:
+      - "8071:8071"
+    environment:
+      CONFIGSERVER_PORT: "8071"
+    healthcheck:
+      test: "curl --fail --silent http://config-server:8071/actuator/health | grep actuator || exit 1"
+      interval: 2s
+      timeout: 5s
+      retries: 5
+      start_period: 2s
+    networks:
+      default:
+        aliases:
+          - "config-server"
+    
+ 
+  eureka-server:
+    image: sujithkumarmp/eureka-server.jar:latest
+    ports:
+      - "8070:8070"
+    environment:
+      PROFILE: "default"
+      CONFIGSERVER_URI: "http://config-server"
+      CONFIGSERVER_PORT: "8071"
+      EUREKASERVER_PORT: "8070"
+    healthcheck:
+      test: "curl --fail --silent http://eureka-server:8070/actuator/health | grep UP || exit 1"
+      interval: 2s
+      timeout: 5s
+      retries: 5
+      start_period: 2s
+    depends_on:
+      config-server: 
+        condition: service_healthy
+    networks:
+      default:
+        aliases:
+          - "eureka-server"
+          
+  gateway-server:
+    image: sujithkumarmp/gateway-server.jar:latest
+    ports:
+      - "8072:8072"
+    environment:
+      PROFILE: "dev"
+      CONFIGSERVER_URI: "http://config-server"
+      CONFIGSERVER_PORT: "8071"
+      GATEWAYSERVER_PORT: "8072"
+    healthcheck:
+      test: "curl --fail --silent http://gateway-server:8072/actuator/health | grep UP || exit 1"
+      interval: 2s
+      timeout: 5s
+      retries: 5
+      start_period: 2s
+    
+    depends_on:
+      config-server: 
+        condition: service_healthy
+      eureka-server: 
+        condition: service_healthy
+    networks:
+      default:
+        aliases:
+          - "gateway-server"
