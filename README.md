@@ -48,3 +48,16 @@ kubectl delete deployment config-server
 kubectl scale deployment config-server --replicas=3
 
 kubectl set image 
+kubectl get deploy config-server -o yaml
+kubectl logs -f config-server-76754b664b-qznx9
+kubectl expose deployment nginx-app --port=80 --name=nginx-http
+
+kubectl apply -f https://k8s.io/examples/controllers/nginx-deployment.yaml
+
+
+## References
+https://kubernetes.io/docs/reference/kubectl/docker-cli-to-kubectl/
+https://kubernetes.io/docs/tasks/configure-pod-container/translate-compose-kubernetes/
+https://kubernetes.io/docs/concepts/workloads/controllers/deployment/
+
+
