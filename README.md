@@ -1,7 +1,7 @@
 # docker-config
 
 ## Docker Commands
-===================
+
 docker search postgres
 docker pull postgress:latest
  
@@ -18,7 +18,7 @@ docker ps
 docker stop some-postgres
 
 ## Docker Swarm
-==============
+
 docker swarm init
 ---> docker swarm join --token SWMTKN-1-3cjqixdvfj64x78pmamh4lfrlxc1wb9owyf36z5s6a7ekvazaa-4kxjw4tp8881ef52jrsj9pkb4 192.168.65.4:2377
 docker stack deploy --compose-file docker-compose.yml my-swarm
@@ -29,4 +29,4 @@ docker swarm leave --force
 
 
 ## Kubernetes
-===========================
+
