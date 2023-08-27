@@ -1,27 +1,45 @@
 version: '3.9'
 services:
-  config-server:
-    image: sujithkumarmp/config-server.jar:1.0.0
+
+  zipkin-server:
+    image: 'openzipkin/zipkin'
     ports:
-      - "8071:8071"
+      - '9411:9411'
+
+  zookeeper:
+    image: 'bitnami/zookeeper:latest'
+    ports:
+      - '2181:2181'
     environment:
-      CONFIGSERVER_PORT: "8071"
+      - ALLOW_ANONYMOUS_LOGIN=yes
+
+  kafka:
+    image: 'bitnami/kafka:latest'
+    ports:
+      - '9092:9092'
+    environment:
+      - KAFKA_BROKER_ID=1
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+
+  config-server:
+    image: sujithkumarmp/config-server.jar:1.1.0
+    ports:
+      - "8071:8071"   
     networks:
       default:
         aliases:
-          - "config-server"
-    
+          - "config-server"      
  
   eureka-server:
-    image: sujithkumarmp/eureka-server.jar:1.0.0
+    image: sujithkumarmp/eureka-server.jar:1.1.0
     ports:
       - "8070:8070"
-    environment:
-      PROFILE: "default"
-      CONFIGSERVER_URI: "http://config-server"
-      CONFIGSERVER_PORT: "8071"
-      EUREKASERVER_PORT: "8070"
-   
+    
     depends_on:
       - config-server
     networks:
@@ -30,17 +48,12 @@ services:
           - "eureka-server"
           
   gateway-server:
-    image: sujithkumarmp/gateway-server.jar:1.0.0
+    image: sujithkumarmp/gateway-server.jar:1.1.0
     ports:
       - "8072:8072"
     deploy:
       mode: replicated
       replicas: 2
-    environment:
-      PROFILE: "dev"
-      CONFIGSERVER_URI: "http://config-server"
-      CONFIGSERVER_PORT: "8071"
-      GATEWAYSERVER_PORT: "8072"
     
     depends_on:
       - config-server
@@ -50,21 +63,68 @@ services:
         aliases:
           - "gateway-server"
           
-  auth-service:
-    image: sujithkumarmp/auth-service.jar:1.0.0
+  oauth2-auth-server:
+    image: sujithkumarmp/oauth2-auth-server.jar:1.0.0
+    ports:
+      - "8073:8073"
+    depends_on:
+      - config-server
+    networks:
+      default:
+        aliases:
+          - "oauth2-auth-server"
+  bus-admin-service:
+    image: sujithkumarmp/bus-admin-service.jar:1.0.0
     ports:
       - "8090:8090"
-    environment:
-      PROFILE: "prod"
-      CONFIGSERVER_URI: "http://config-server"
-      CONFIGSERVER_PORT: "8071"
-      GATEWAYSERVER_PORT: "8072"
-      AUTHSERVICE_PORT: "8090"
-    
     depends_on:
       - config-server
       - eureka-server
     networks:
       default:
         aliases:
-          - "auth-service"
+          - "bus-admin-service"
+  bus-inventory-service:
+    image: sujithkumarmp/bus-inventory-service.jar:1.0.0
+    ports:
+      - "8091:8091"
+    depends_on:
+      - config-server
+      - eureka-server
+    networks:
+      default:
+        aliases:
+          - "bus-inventory-service"
+  bus-user-service:
+    image: sujithkumarmp/bus-user-service.jar:1.0.0
+    ports:
+      - "8092:8092"
+    depends_on:
+      - config-server
+      - eureka-server
+    networks:
+      default:
+        aliases:
+          - "bus-user-service"
+  bus-payment-service:
+    image: sujithkumarmp/bus-payment-service.jar:1.0.0
+    ports:
+      - "8093:8093"
+    depends_on:
+      - config-server
+      - eureka-server
+    networks:
+      default:
+        aliases:
+          - "bus-payment-service"
+  bus-booking-service:
+    image: sujithkumarmp/bus-booking-service.jar:1.0.0
+    ports:
+      - "8094:8094"
+    depends_on:
+      - config-server
+      - eureka-server
+    networks:
+      default:
+        aliases:
+          - "bus-booking-service"
